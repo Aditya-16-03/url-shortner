@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnapLink — URL Shortener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Background blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">SnapLink</span>
+      </div>
+      <div class="nav-badge">Free &amp; Fast</div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <main class="main">
+    <section class="hero">
+      <div class="hero-tag">
+        <span class="tag-dot"></span>
+        URL Shortener
+      </div>
+      <h1 class="hero-title">
+        Shorten URLs.<br />
+        <span class="gradient-text">Share Anything.</span>
+      </h1>
+      <p class="hero-sub">
+        Turn long, messy links into clean, shareable short URLs in seconds.
+        Custom codes, expiry control — all included.
+      </p>
+    </section>
+
+    <!-- Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Create Short URL</h2>
+        <p class="card-desc">Paste your URL below and get a short link instantly</p>
+      </div>
+
+      <form id="shortenForm" class="form" novalidate>
+        <!-- URL input -->
+        <div class="field-group">
+          <label class="field-label" for="urlInput">
+            <span class="label-icon">🔗</span> Long URL
+            <span class="required">*</span>
+          </label>
+          <div class="input-wrapper">
+            <input
+              id="urlInput"
+              type="url"
+              class="field-input"
+              placeholder="https://example.com/very/long/url/here"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span class="input-status" id="urlStatus"></span>
+          </div>
+          <span class="field-error" id="urlError"></span>
+        </div>
+
+        <!-- Row: shortcode + validity -->
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="shortcodeInput">
+              <span class="label-icon">✏️</span> Custom Code
+              <span class="optional">(optional)</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="shortcodeInput"
+                type="text"
+                class="field-input"
+                placeholder="my-link"
+                maxlength="30"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <span class="field-hint">Leave blank to auto-generate</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="validityInput">
+              <span class="label-icon">⏱️</span> Validity
+              <span class="optional">(minutes)</span>
+            </label>
+            <div class="input-wrapper">
+              <input
+                id="validityInput"
+                type="number"
+                class="field-input"
+                placeholder="30"
+                min="1"
+                max="525600"
+              />
+            </div>
+            <span class="field-hint">Default: 30 minutes</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span class="btn-text">Shorten URL</span>
+          <span class="btn-spinner" id="btnSpinner" hidden>
+            <svg class="spinner-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3" />
+              <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+            </svg>
+          </span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </form>
+
+      <!-- Error alert -->
+      <div class="alert alert-error" id="errorAlert" hidden>
+        <span class="alert-icon">⚠️</span>
+        <span class="alert-msg" id="errorMsg"></span>
+        <button class="alert-close" onclick="dismissAlert('errorAlert')">✕</button>
+      </div>
+
+      <!-- Success result -->
+      <div class="result-card" id="resultCard" hidden>
+        <div class="result-header">
+          <span class="result-badge">
+            <span class="badge-dot"></span>
+            Link Created
+          </span>
+        </div>
+
+        <div class="result-url-block">
+          <span class="result-label">Your short URL</span>
+          <div class="result-url-row">
+            <a class="result-url" id="resultUrl" href="#" target="_blank" rel="noopener noreferrer"></a>
+            <button class="btn-copy" id="copyBtn" onclick="copyToClipboard()" title="Copy to clipboard">
+              <span id="copyIcon">📋</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="result-meta">
+          <div class="meta-item">
+            <span class="meta-label">Expires at</span>
+            <span class="meta-value" id="resultExpiry"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Short code</span>
+            <span class="meta-value mono" id="resultCode"></span>
+          </div>
+        </div>
+
+        <button class="btn-another" onclick="resetForm()">
+          ← Shorten another URL
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <span class="stat-icon">🚀</span>
+        <span class="stat-text">Instant redirect</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-icon">⏰</span>
+        <span class="stat-text">Custom expiry</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-icon">🎯</span>
+        <span class="stat-text">Custom codes</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Built with ❤️ · Powered by Spring Boot · SnapLink &copy; 2026</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
